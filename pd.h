@@ -139,4 +139,5 @@ extern double surface_tension, viscosity;
 extern double wall_force;
 extern double wall_mass;
 extern double wall_speed;
+extern int calculate_wet_force;
 

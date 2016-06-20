@@ -29,8 +29,8 @@ double particle_torque_x[number_of_particles], particle_torque_y[number_of_parti
 double particle_angular_velocity_x[number_of_particles], particle_angular_velocity_y[number_of_particles], particle_angular_velocity_z[number_of_particles];
 
 double  wall_force = 0.0;
-double  wall_mass = 10; //dimensionless, default MASS is glass so the wall particle mass in this case is 0.1 glass mass
-double  flip_time=1.0;  //unit is second. trying 1 second
+double  wall_mass = 150; //dimensionless, default MASS is glass so the wall particle mass in this case is 0.1 glass mass
+double  flip_time=3.0;  //unit is second. 3 second for each trial
 
 int     number_of_cells;
 int     number_x, number_y, number_z;
@@ -43,7 +43,7 @@ double 	elapsed_time, particle_diameter;
 
 sim_material    material = GLASS;
 
-int		incontact=-1;
+int		incontact=-1;  //what does this value do?
 int     cohesive = 0;  //dry particles for now
 double   vinit = -8675309.0;	/* this is just a dummy number. it
 					 * has no significance ... a number
@@ -67,7 +67,7 @@ int
 main(int argc, char **argv)
 {
 	int m, number_of_files = 0;
-	double running_time=2.0, write_time = 0.0;  //running_time=2 secobd. Maybe a test?
+	double running_time=30.0, write_time = 0.0;  //running_time=2 secobd. Maybe a test?
 	char *infile = NULL;
 	char outfile[256];
     
@@ -201,7 +201,8 @@ main(int argc, char **argv)
 			
 		}
     
-        
+        /** move walls and calculate wall stresses/temps, if necesary **/
+        handle_moving_walls();
         
 		if (elapsed_time >= write_time) {
             

@@ -17,7 +17,7 @@ contact_detect()
 
                     if (i > j && i>=number_of_wall_particles)
                     {
-						calculate_contact_force(i, j); //something wrong here.
+						calculate_contact_force(i, j); 
                     }
 					else if (j>=number_of_wall_particles)
 						calculate_contact_force(j, i);

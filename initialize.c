@@ -9,7 +9,7 @@ initialize(char *infile)
 	double gravity = 9.81;	/* m/s^2 */
 	double youngs_modulus, yield_stress, poisson_ratio, density, shear_modulus, lambda, particle_diameter_min, conductivity, heat_capacity, thermal_expansion_coef;
     double L_density, H_density;
-    double dt_old;
+    double dt_L, dt_H;
 	FILE *fpin;
 	
     get_material_properties(material, &thermal_expansion_coef, &youngs_modulus, &density, &poisson_ratio, &yield_stress, &conductivity, &heat_capacity);
@@ -22,7 +22,7 @@ initialize(char *infile)
 	particle_diameter_min = LENGTH;
 	
     /** 0.25* to make it insensitive **/
-    dt_old = 1.0;
+    //dt_old = 1.0;
     
 	/* read in wall particle details */
 
@@ -72,14 +72,12 @@ initialize(char *infile)
 		particle_torque_x[m] = particle_torque_y[m] = particle_torque_z[m] = 0.0;
         //printf("particle_force_y_ng is %lf and m %i \n", particle_force_y_ng[m], m);
         shear_modulus = 0.5 * youngs_modulus / (1.0 + poisson_ratio);
-        lambda = 0.1631 * poisson_ratio + 0.8766;
-
-        /** calculate time-step using dimensional parameters (from Kafui, 2002) **/
-        dt = 0.02 * ((M_PI * particle_diameter_min / (2.0 * lambda)) * sqrt(density / shear_modulus)) / TIME;  // I changed the position of this function to get the minimum dt value
         
-        if (dt < dt_old)
+        /*
+        if (dt < dt_old)    //this part is if we want the minimum dt of all particles
             dt_old = dt;
-        
+        */
+            
         /** make collision parameters dimensionless for each particle **/
         particle_G_star[m] = (shear_modulus * (LENGTH * TIME * TIME / MASS)) /
         (2.0 - poisson_ratio);
@@ -91,11 +89,28 @@ initialize(char *infile)
 		// Set the "last" touching time step to be so small that we will erase contact data even for a particle pair that is initially touching
 		for (q = m+1; q < number_of_particles; q++) particle_number_of_time_steps[pair(q,m)] = -2;
 	}
+    
+    /** calculate time-step using dimensional parameters (from Kafui, 2002) **/
+            //      if (particle_color[m]==7)
+    {
+        get_material_properties(LIGHT_PARTICLE, &thermal_expansion_coef, &youngs_modulus, &density, &poisson_ratio, &yield_stress, &conductivity, &heat_capacity);
+        lambda = 0.1631 * poisson_ratio + 0.8766;
+        shear_modulus = 0.5 * youngs_modulus / (1.0 + poisson_ratio);
+        dt_L = 0.02 * ((M_PI * particle_diameter_min / (2.0 * lambda)) * sqrt(density / shear_modulus)) / TIME;  // I changed the position of this function to get the minimum dt value
+    }
+            //      else if (particle_color[m]==3)
+    {
+        get_material_properties(HEAVY_PARTICLE, &thermal_expansion_coef, &youngs_modulus, &density, &poisson_ratio, &yield_stress, &conductivity, &heat_capacity);
+        lambda = 0.1631 * poisson_ratio + 0.8766;
+        shear_modulus = 0.5 * youngs_modulus / (1.0 + poisson_ratio);
+        dt_H = 0.02 * ((M_PI * particle_diameter_min / (2.0 * lambda)) * sqrt(density / shear_modulus)) / TIME;
+    }
 	
 
-    printf("Time step dt is %e s. Write_time is %e s.  Scaling variables are dt=%e MASS=%e TIME=%e LENGTH=%e\n", dt, (1.0 / 30.0) * (1.0 / TIME), dt*TIME, MASS, TIME, LENGTH);
+    dt = dt_L;
+    printf("Time step dt is %e. Light_particle_dt is %e. Heavy_particle_dt is %e. Scaling variables are dt=%e s, MASS=%e TIME=%e LENGTH=%e\n", dt, dt_L, dt_H, dt*TIME, MASS, TIME, LENGTH);
 
-    dt = dt_old;
+    //dt = dt_old;
     //dt=0.000029;
     printf("value of dt with unit of second %e\n", dt * TIME);
     

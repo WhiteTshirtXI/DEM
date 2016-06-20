@@ -71,9 +71,9 @@ calculate_contact_force(int i, int j)
 	radii_sum_sq = radii_sum * radii_sum;
 
     
-	if (radii_sum_sq > separation_sq) {
+	if (radii_sum_sq > separation_sq) {  // means two particles are touching
     
-		if ((number_of_time_steps-particle_number_of_time_steps[q])>1) erase_contact_data(q);
+		if ((number_of_time_steps-particle_number_of_time_steps[q])>1) erase_contact_data(q); //means the particle collision pair [q] was not happen in the privious dt
 	
 		separation = sqrt(xij * xij + yij * yij + zij * zij);
         
@@ -257,7 +257,7 @@ calculate_contact_force(int i, int j)
         if (Gdirection==-1 && j < number_of_moving_wall_particles)
         {
             wall_force -= fy;
-            //  printf("fy %e, wall_force %e\n", fy,wall_force);
+           // printf("fy %e, wall_force %e\n", fy,wall_force);
         }
         else if (Gdirection==1 && j < number_of_wall_particles && j >= number_of_moving_wall_particles)
         {
