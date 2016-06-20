@@ -1,0 +1,49 @@
+set font to Times
+set x size 10
+set y size 20
+set line width 1.8 
+set line width axis 1.6  
+set font size 20
+set symbol size 0.35
+set clip on
+
+set panels 2 1
+
+set panel 1 1
+set x name "$\alpha$"
+set y name "fn"
+
+#set x axis 0 1.5 0.2
+#set y axis 0.1 0.5 0.1
+
+#draw axes
+#
+#
+#
+open output
+skip 1
+read columns  * * y x * * * * * * * * * * * * *
+close 
+draw symbol bullet
+
+delete x scale
+delete y scale
+
+set panel 2 1
+set x name "$\delta$"
+set y name "fs"
+
+#set x axis 0 1.5 0.2
+#set y axis 0.1 0.5 0.1
+
+#draw axes
+#
+#
+#
+open output
+skip 1
+read columns  * * * * y x * * * * * * * * * * *
+close 
+draw symbol bullet
+
+
