@@ -257,7 +257,7 @@ calculate_contact_force(int i, int j)
         if (Gdirection==-1 && j < number_of_moving_wall_particles)
         {
             wall_force -= fy;
-            //  printf("fy %e, wall_force %e\n", fy,wall_force);
+           // printf("fy %e, wall_force %e\n", fy,wall_force);
         }
         else if (Gdirection==1 && j < number_of_wall_particles && j >= number_of_moving_wall_particles)
         {

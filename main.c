@@ -29,7 +29,7 @@ double particle_torque_x[number_of_particles], particle_torque_y[number_of_parti
 double particle_angular_velocity_x[number_of_particles], particle_angular_velocity_y[number_of_particles], particle_angular_velocity_z[number_of_particles];
 
 double  wall_force = 0.0;
-double  wall_mass = 10; //dimensionless, default MASS is glass so the wall particle mass in this case is 0.1 glass mass
+double  wall_mass = 150; //dimensionless, default MASS is glass so the wall particle mass in this case is 0.1 glass mass
 double  flip_time=1.0;  //unit is second. trying 1 second
 
 int     number_of_cells;
@@ -201,7 +201,8 @@ main(int argc, char **argv)
 			
 		}
     
-        
+        /** move walls and calculate wall stresses/temps, if necesary **/
+        handle_moving_walls();
         
 		if (elapsed_time >= write_time) {
             

@@ -95,8 +95,8 @@ initialize(char *infile)
 
     printf("Time step dt is %e s. Write_time is %e s.  Scaling variables are dt=%e MASS=%e TIME=%e LENGTH=%e\n", dt, (1.0 / 30.0) * (1.0 / TIME), dt*TIME, MASS, TIME, LENGTH);
 
-    dt = dt_old;
-    //dt=0.000029;
+    //dt = dt_old;
+    dt=8.680628e-06;  //most is acetate, ignore glass to run faster
     printf("value of dt with unit of second %e\n", dt * TIME);
     
     printf("L_density_value %lf // H_density_value %lf\n", L_density, H_density);

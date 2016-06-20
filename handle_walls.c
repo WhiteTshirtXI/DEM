@@ -154,7 +154,7 @@ void
 handle_moving_walls()
 {
 	int             i;
-
+    
 	{
         //wall_force = -wall_mass;  //gdirection=-1 initially, force is negative. on the down direction, so have negative sign
         
@@ -165,7 +165,7 @@ handle_moving_walls()
                 particle_velocity_x[i]= wall_speed;
                 particle_velocity_y[i] += update_velocity(wall_mass, wall_force);
                 particle_velocity_z[i] = 0.0;
-                
+
                 particle_angular_velocity_x[i] = particle_angular_velocity_y[i] =
                 particle_angular_velocity_z[i]  = 0.0;
 			}
