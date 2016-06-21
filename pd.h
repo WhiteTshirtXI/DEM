@@ -18,8 +18,6 @@
 
 #define	number_of_interaction_pairs (number_of_units*(number_of_units+1)/2)
 
-#define ASP		0.01	// asperity height for lubrication forces
-
 #define XPERIODIC	1
 #define YPERIODIC	1     //change to periodic, no concept solid wall
 #define	ZPERIODIC	1
@@ -31,6 +29,12 @@
 #define DEBUG	0
 #define CELL_COORD_NUMBER 	(13)	/* (4+3*simulation_size_x/size_of_cells) */
 #define size_of_cells	1.0
+
+#define ASP 0.001				/* 1.0x10^-6/dp */  //asperity height for lubrication forces
+#define VOLUME 0.001		/* dimensionless volume of a *single* bridge */
+/* vol_percent_liq*[(4/3)*PI*rp^3]/[solid_frac*5 bridges per particle] */
+/* since we use dp to make our equations dimensionless */
+/* vol_percent_liq*[(1/3)*PI]/[solid_frac*10] because of the factor of 8 */
 
 #define WALL_SPEED	1  //m/s
 
@@ -76,8 +80,8 @@ typedef enum
 #define pair(i, j) (j-i+(i*(i+1)/2))
 
 double Gdirection;
-extern double S_crit, A, B, C;
 
+extern double S_crit, A, B, C;
 extern double   dt;
 extern double 	TIME, MASS, LENGTH, elapsed_time, particle_diameter;
 extern double	bottom_wall_force, damping, friction_coefficient;

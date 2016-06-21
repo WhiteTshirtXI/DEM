@@ -16,6 +16,10 @@ calculate_contact_force(int i, int j)
 	double          disp_x, disp_y, disp_z, tx = 0.0, ty = 0.0, tz = 0.0,
 	                fx = 0.0, fy = 0.0, fz = 0.0, vn, rparti, rpartj;
 	double          contact_radius, dalpha, F_yield;
+    // Rest is for wet particle define
+    double          wet_radii_sum, wet_radii_sum_sq, S;
+    double          fstn, fvn, fluid_fn, fluid_kt;
+    double          vdisp_x = 0.0, vdisp_y = 0.0, vdisp_z = 0.0;
 	
 	q = pair(i, j);
 	rpartj = particle_radius[j];
@@ -226,7 +230,7 @@ calculate_contact_force(int i, int j)
     	}
     	
     	incontact=1;
-    
+        //torque and force for contact part
  		particle_torque_x[j] -= rpartj * tx;
 		particle_torque_y[j] -= rpartj * ty;
 		particle_torque_z[j] -= rpartj * tz;
@@ -235,7 +239,7 @@ calculate_contact_force(int i, int j)
 		particle_force_y[j] -= fy;
 		particle_force_z[j] -= fz;
 			
-		particle_touching[q] = 1;
+		particle_touching[q] = 1;  //Never used?
 		particle_Rp[q] = Rp;
 		particle_force_normal_old[q] = fn;
 		particle_force_normal_max[q] = fn_max;
@@ -274,6 +278,65 @@ calculate_contact_force(int i, int j)
         
 	}
 	
-
+    if (cohesive==1)
+    {
+        wet_radii_sum = radii_sum + S_crit;
+        wet_radii_sum_sq = wet_radii_sum * wet_radii_sum;
+        if (wet_radii_sum_sq > separation_sq)
+        {
+            separation = sqrt(separation_sq);
+            
+            S = separation - radii_sum;
+            if (S < ASP)
+                S = ASP;
+            
+            norm_x = xij / separation;
+            norm_y = yij / separation;
+            norm_z = zij / separation;
+            
+            vn = norm_x * vxij + norm_y * vyij + norm_z * vzij;
+            
+            fstn = -M_PI * R_eff * surface_tension * (exp(A * S + B) + C);
+            fvn = -6.0 * M_PI * R_eff * viscosity * vn * (R_eff / S);
+            fluid_fn = fstn + fvn;
+            
+            vdisp_x = (norm_z * vxij - norm_x * vzij) * norm_z - (norm_x * vyij - norm_y * vxij) * norm_y - rparti * (angvi_y * norm_z - angvi_z * norm_y) - rpartj * (angvj_y * norm_z - angvj_z * norm_y);
+            
+            vdisp_y = (norm_x * vyij - norm_y * vxij) * norm_x - (norm_y * vzij - norm_z * vyij) * norm_z - rparti * (angvi_z * norm_x - angvi_x * norm_z) - rpartj * (angvj_z * norm_x - angvj_x * norm_z);
+            
+            vdisp_z = (norm_y * vzij - norm_z * vyij) * norm_y - (norm_z * vxij - norm_x * vzij) * norm_x - rparti * (angvi_x * norm_y - angvi_y * norm_x) - rpartj * (angvj_x * norm_y - angvj_y * norm_x);
+            
+            fluid_kt = 6.0 * M_PI * R_eff * viscosity * (0.53333 * log(R_eff / S) + 0.9588);
+            
+            fs_x = -fluid_kt * vdisp_x;
+            fs_y = -fluid_kt * vdisp_y;
+            fs_z = -fluid_kt * vdisp_z;
+            
+            tx = (norm_y * fs_z - norm_z * fs_y);
+            ty = (norm_z * fs_x - norm_x * fs_z);
+            tz = (norm_x * fs_y - norm_y * fs_x);
+            
+            fx = norm_x * fluid_fn + fs_x;
+            fy = norm_y * fluid_fn + fs_y;
+            fz = norm_z * fluid_fn + fs_z;
+            // Check how is torque and force copied, seems nothing needs to be copied?
+            particle_torque_x[i] -= rparti * tx;
+            particle_torque_y[i] -= rparti * ty;
+            particle_torque_z[i] -= rparti * tz;
+            
+            particle_force_x[i] += fx;
+            particle_force_y[i] += fy;
+            particle_force_z[i] += fz;
+            
+            particle_torque_x[j] -= rpartj * tx;
+            particle_torque_y[j] -= rpartj * ty;
+            particle_torque_z[j] -= rpartj * tz;
+            
+            particle_force_x[j] -= fx;
+            particle_force_y[j] -= fy;
+            particle_force_z[j] -= fz;
+            
+        }
+    }
 
 }

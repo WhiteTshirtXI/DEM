@@ -113,7 +113,7 @@ initialize(char *infile)
     //dt = dt_old;
     //dt=0.000029;
     printf("value of dt with unit of second %e\n", dt * TIME);
-    
+
     printf("L_density_value %lf // H_density_value %lf\n", L_density, H_density);
 	
 

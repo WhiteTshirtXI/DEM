@@ -29,8 +29,8 @@ double particle_torque_x[number_of_particles], particle_torque_y[number_of_parti
 double particle_angular_velocity_x[number_of_particles], particle_angular_velocity_y[number_of_particles], particle_angular_velocity_z[number_of_particles];
 
 double  wall_force = 0.0;
-double  wall_mass = 150; //dimensionless, default MASS is glass so the wall particle mass in this case is 0.1 glass mass
-double  flip_time=3.0;  //unit is second. 3 second for each trial
+double  wall_mass = 100; //dimensionless, default MASS is glass so the wall particle mass in this case is 0.1 glass mass
+double  flip_time=5.0;  //unit is second. 3 second for each trial
 
 int     number_of_cells;
 int     number_x, number_y, number_z;
@@ -48,6 +48,7 @@ int     cohesive = 0;  //dry particles for now
 double   vinit = -8675309.0;	/* this is just a dummy number. it
 					 * has no significance ... a number
 					 * that can never be true */
+double   S_crit, A, B, C;
 double   surface_tension, viscosity;
 
 void
@@ -59,6 +60,7 @@ usage()
 \n\
 -i (file)\t input file (required)\n(format: x y z solid_node_boolean)\n\
 \n OPTIONAL arguments\n\
+-c 	 \t use wet (cohesive) particles    \n\
 -h   \t show this message  \n\n");
 
 }
@@ -82,7 +84,7 @@ main(int argc, char **argv)
 
 	/** parse commmand line options **/
 
-	while ((option_letter = getopt(argc, argv, "i:h")) != -1) {
+	while ((option_letter = getopt(argc, argv, "i:ch")) != -1) {
 
 		if (option_letter == 'i')
         {
@@ -120,13 +122,27 @@ main(int argc, char **argv)
 
 	get_cell_neighbors();			
 	
+    /* info for piston wall simulations */
+    wall_speed = WALL_SPEED * TIME / LENGTH;
+    printf("wall_speed is %f \n", wall_speed);
+    printf("cohesive_value %d, wall_mass %f, flip_time %e \n", cohesive, wall_mass, flip_time);
    
 	while (elapsed_time <= running_time * (1.0 / TIME)) {
         
 		for (m=number_of_wall_particles;m<number_of_particles;m++) { //this part is initialize
             
 			double px, py, pz;
+            
             Gdirection=-1.0;  //switch gravity
+            
+            S_crit = pow(VOLUME, (1.0 / 3.0));	/* VOLUME is defined above -
+                                                 * this is from Lian/Thornton */
+            A = -1.1 * pow(VOLUME, -0.53);	/* we use a correlation for Fc from
+                                             * Horio */
+            B = -0.019 * log(VOLUME) + 0.48;	/* no need to correct for
+                                                 * different */
+            C = 0.0042 * log(VOLUME) + 0.078;	/* length scale since our S =
+                                                 * 2h in their notation */
             
 			px = particle_x[m] += move_particle(particle_mass[m], particle_velocity_x[m], particle_force_x[m]);  //px is the x coordinate of one particle [m]
 			if (px < 0.0)
@@ -175,12 +191,6 @@ main(int argc, char **argv)
         
         surface_tension = SURFACE_TENSION / (MASS / (TIME * TIME));
         viscosity = VISCOSITY / (MASS / (LENGTH * TIME));
-
-        
-        /* info for piston wall simulations */
-        
-        wall_speed = WALL_SPEED * TIME / LENGTH;
-        //printf("wall_speed is %f , Wall_position is %e\n", wall_speed, particle_y[10]);
 
 		/** find potential collisions/contacts between particles **/
 		sort_particles();	/** first sort the particles into cells **/
