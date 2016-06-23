@@ -74,6 +74,7 @@ main(int argc, char **argv)
 	char outfile[256];
     
     double   stored_time=0.0;
+    double px, py, pz;
 	FILE           *fpout;
 	
 	/** I/O handling **/
@@ -126,23 +127,25 @@ main(int argc, char **argv)
     wall_speed = WALL_SPEED * TIME / LENGTH;
     printf("wall_speed is %f \n", wall_speed);
     printf("cohesive_value %d, wall_mass %f, flip_time %e \n", cohesive, wall_mass, flip_time);
-   
+    
+    /* info for wet simulations */
+    
+    surface_tension = SURFACE_TENSION / (MASS / (TIME * TIME));
+    viscosity = VISCOSITY / (MASS / (LENGTH * TIME));
+    
+    S_crit = pow(VOLUME, (1.0 / 3.0));	/* VOLUME is defined above -
+                                         * this is from Lian/Thornton */
+    A = -1.1 * pow(VOLUME, -0.53);	/* we use a correlation for Fc from
+                                     * Horio */
+    B = -0.019 * log(VOLUME) + 0.48;	/* no need to correct for
+                                         * different */
+    C = 0.0042 * log(VOLUME) + 0.078;	/* length scale since our S =
+                                         * 2h in their notation */
+    Gdirection=-1.0;  //switch gravity
+    
 	while (elapsed_time <= running_time * (1.0 / TIME)) {
         
 		for (m=number_of_wall_particles;m<number_of_particles;m++) { //this part is initialize
-            
-			double px, py, pz;
-            
-            Gdirection=-1.0;  //switch gravity
-            
-            S_crit = pow(VOLUME, (1.0 / 3.0));	/* VOLUME is defined above -
-                                                 * this is from Lian/Thornton */
-            A = -1.1 * pow(VOLUME, -0.53);	/* we use a correlation for Fc from
-                                             * Horio */
-            B = -0.019 * log(VOLUME) + 0.48;	/* no need to correct for
-                                                 * different */
-            C = 0.0042 * log(VOLUME) + 0.078;	/* length scale since our S =
-                                                 * 2h in their notation */
             
 			px = particle_x[m] += move_particle(particle_mass[m], particle_velocity_x[m], particle_force_x[m]);  //px is the x coordinate of one particle [m]
 			if (px < 0.0)
@@ -187,10 +190,6 @@ main(int argc, char **argv)
 
         
         handle_walls();
-        /* info for wet simulations */
-        
-        surface_tension = SURFACE_TENSION / (MASS / (TIME * TIME));
-        viscosity = VISCOSITY / (MASS / (LENGTH * TIME));
 
 		/** find potential collisions/contacts between particles **/
 		sort_particles();	/** first sort the particles into cells **/
