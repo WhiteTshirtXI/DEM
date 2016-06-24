@@ -1,0 +1,28 @@
+set font to Times
+set x size 15
+set y size 15
+set line width 2.0 
+set line width axis 1.8  
+set font size 14
+set symbol size 0.2
+set clip on
+
+set x name "time [s]"
+set y name "Average_blue_y_position"
+
+set y axis 5.0 10.0 1.0
+set x axis 0.00 30.0 5.0
+
+#
+#
+#
+
+draw axes
+
+
+
+set color red
+open blue_position_average_position_5
+read columns  x y * *
+close 
+draw symbol 12
