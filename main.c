@@ -65,6 +65,15 @@ usage()
 
 }
 
+//Rest is for Contact Index files
+FILE           *fpout_Nx;
+char outfile_Nx[256];
+int  Nx_index;
+int  W_Nx_index;
+
+FILE           *fpout_Nx_index;
+char outfile_Nx_index[256];
+
 int
 main(int argc, char **argv)
 {
@@ -143,6 +152,16 @@ main(int argc, char **argv)
                                          * 2h in their notation */
     Gdirection=-1.0;  //switch gravity
     
+    //if (elapsed_time >= write_time)
+    {
+        //sprintf(outfile_Nx, "Contact_Index_%04d",number_of_files);
+        sprintf(outfile_Nx, "Contact_Index_record");
+        fpout_Nx = fopen(outfile_Nx, "w");
+        
+        sprintf(outfile_Nx_index, "Contact_Index_Number");
+        fpout_Nx_index = fopen(outfile_Nx_index, "w");
+    }
+    
 	while (elapsed_time <= running_time * (1.0 / TIME)) {
         
 		for (m=number_of_wall_particles;m<number_of_particles;m++) { //this part is initialize
@@ -193,7 +212,7 @@ main(int argc, char **argv)
 
 		/** find potential collisions/contacts between particles **/
 		sort_particles();	/** first sort the particles into cells **/
-        
+    
 		contact_detect();	/** then loop over cells and add particles to potential collision list **/  //This function also include contact_force calculation
         
 
@@ -214,7 +233,6 @@ main(int argc, char **argv)
         handle_moving_walls();
         
 		if (elapsed_time >= write_time) {
-            
 			sprintf(outfile, "file%04d", number_of_files);
 			if ((fpout = fopen(outfile, "w")) == NULL) {
 				printf("Cannot Open File\n");
@@ -224,6 +242,10 @@ main(int argc, char **argv)
 				fprintf(fpout, "%e %e %e %e %e %e %e %e %e %e 0.0 %i\n", particle_x[m], particle_y[m], particle_z[m], particle_velocity_x[m], particle_velocity_y[m], particle_velocity_z[m], particle_angular_velocity_x[m], particle_angular_velocity_y[m],	particle_angular_velocity_z[m], particle_radius[m], particle_color[m]);
 			
 			fclose(fpout);
+
+            {
+                //fclose(fpout_Nx);
+            }
 						
 			number_of_files++;
             

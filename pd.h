@@ -145,3 +145,11 @@ extern double wall_mass;
 extern double wall_speed;
 extern int calculate_wet_force;
 
+
+//Rest is for Contact Index files
+extern FILE           *fpout_Nx;
+extern char outfile_Nx[256];
+extern FILE           *fpout_Nx_index;
+extern char outfile_Nx_index[256];
+extern int  Nx_index;
+extern int  W_Nx_index;

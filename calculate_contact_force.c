@@ -20,8 +20,8 @@ calculate_contact_force(int i, int j)
     double          wet_radii_sum, wet_radii_sum_sq, S;
     double          fstn, fvn, fluid_fn, fluid_kt;
     double          vdisp_x = 0.0, vdisp_y = 0.0, vdisp_z = 0.0;
-	
-	q = pair(i, j);
+    
+    q = pair(i, j);
 	rpartj = particle_radius[j];
 	
 	angvj_x = particle_angular_velocity_x[j];
@@ -76,9 +76,21 @@ calculate_contact_force(int i, int j)
 
     
 	if (radii_sum_sq > separation_sq) {  // means two particles are touching
-    
-		if ((number_of_time_steps-particle_number_of_time_steps[q])>1) erase_contact_data(q); //means the particle collision pair [q] was not happen in the privious dt
-	
+        if (particle_color[i]==3 || particle_color[j]==3 )
+        {
+            Nx_index++;
+            printf("i %i; j %i, Time_step %lli \n", i,j,number_of_time_steps);
+        }
+		if ((number_of_time_steps-particle_number_of_time_steps[q])>1)
+            {
+                erase_contact_data(q); //means the particle collision pair [q] was not happen in the privious dt
+                
+                if ((particle_color[i]==3 || particle_color[j]==3))
+                {
+                    fprintf(fpout_Nx, "Number_of_time_steps %lli Previous_time_steps %lli IJ %i/%i\n", number_of_time_steps,particle_number_of_time_steps[q], i,j);
+                }
+                
+            }
 		separation = sqrt(xij * xij + yij * yij + zij * zij);
         
 		alpha = radii_sum - separation;  //alpha is way too high
@@ -148,14 +160,6 @@ calculate_contact_force(int i, int j)
 		if (fn > fn_max)
 			fn_max = fn;
         
-        /*
-        if (i==2997 || i==3017)
-        {
-            printf("START_loaidng\n");
-            printf("fn %e, Loading Kn %e, dalpha %e, Kn * dalpha %e, i %i, j %i\n",fn, Kn, dalpha, Kn * dalpha, i, j);
-            printf("fn_old %e, fn_max  %e\n", fn_old, fn_max);
-        }
-        */
 	}
         
 	/* for unloading */
@@ -185,8 +189,12 @@ calculate_contact_force(int i, int j)
         
 		if (contact_mechanics == ELASTIC)
 			fn -= damping * vn * alpha;
-
-        
+/*
+        if (particle_color[i]==3 || particle_color[j]==3)
+        {
+            fprintf(fpout_Nx, "Time(s) %e Un_load %i %i\n", elapsed_time*TIME, i,j);
+        }
+ */
 	}
 
 	if (fn < 0.0)
@@ -267,15 +275,7 @@ calculate_contact_force(int i, int j)
         {
             wall_force -= fy;  //cheack this line later. Maybe mistake! No, looks right. Wall_force switchs signs
         }
-        /*
-        if (i==953 && j==572)
-        {
-            printf("fn %e i %i j %i\n", fn,i,j);
-            printf("fx %e, particle_force_normal_old[q] %e\n",fx, particle_force_normal_old[q]);
-            printf("\n");
-        }
-        */
-        
+
 	}
 	
     if (cohesive==1)
@@ -284,6 +284,11 @@ calculate_contact_force(int i, int j)
         wet_radii_sum_sq = wet_radii_sum * wet_radii_sum;
         if (wet_radii_sum_sq > separation_sq)
         {
+            if (particle_color[i]==3 || particle_color[j]==3 )
+            {
+                W_Nx_index++;
+            }
+            
             separation = sqrt(separation_sq);
             
             S = separation - radii_sum;
@@ -338,5 +343,5 @@ calculate_contact_force(int i, int j)
             
         }
     }
-
+    
 }
