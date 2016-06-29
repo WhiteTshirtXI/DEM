@@ -4,7 +4,7 @@ void
 calculate_contact_force(int i, int j)
 {
 	sim_normal_contact_status fn_status;
-	int 			q;
+	int 			q, touching=0;
 	double          fs_old_x = 0.0, fs_old_y = 0.0, fs_old_z = 0.0;
 	double          norm_x, norm_y, norm_z, xij, yij, zij, vxij, vyij,
 	                vzij, angvi_x, angvi_y, angvi_z, angvj_x, angvj_y,
@@ -77,6 +77,7 @@ calculate_contact_force(int i, int j)
     
 	if (radii_sum_sq > separation_sq) {  // means two particles are touching
     
+    	touching = 1;
 		if ((number_of_time_steps-particle_number_of_time_steps[q])>1) erase_contact_data(q); //means the particle collision pair [q] was not happen in the privious dt
 	
 		separation = sqrt(xij * xij + yij * yij + zij * zij);
@@ -239,7 +240,6 @@ calculate_contact_force(int i, int j)
 		particle_force_y[j] -= fy;
 		particle_force_z[j] -= fz;
 			
-		particle_touching[q] = 1;  //Never used?
 		particle_Rp[q] = Rp;
 		particle_force_normal_old[q] = fn;
 		particle_force_normal_max[q] = fn_max;
@@ -278,7 +278,7 @@ calculate_contact_force(int i, int j)
         
 	}
 	
-    if (cohesive==1)
+    if (cohesive==1 && (number_of_time_steps-particle_number_of_time_steps[q])==1)
     {
         wet_radii_sum = radii_sum + S_crit;
         wet_radii_sum_sq = wet_radii_sum * wet_radii_sum;
@@ -335,6 +335,9 @@ calculate_contact_force(int i, int j)
             particle_force_x[j] -= fx;
             particle_force_y[j] -= fy;
             particle_force_z[j] -= fz;
+            
+            if (!touching) erase_contact_data(q);
+            particle_number_of_time_steps[q] = number_of_time_steps;
             
         }
     }
