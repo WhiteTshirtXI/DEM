@@ -36,7 +36,6 @@ contact_detect()
 	 * zero headers and done flags for ix lists in the iy, iy+1, and iy-1
 	 * columns
 	 */
-
 	for (i = 0; i < Nx; i++) {
 
 		xlist[0][0][i].done = 0;
@@ -55,9 +54,7 @@ contact_detect()
 		xlist[1][2][i].head = -1;
 
 	}
-
 	/* sorts particles into iz cells before we begin */
-
 	for (i = 0; i < number_of_particles; i++) {
 		iz = (int) particle_z[i];
 		particle_nextz[i] = zlist[iz].head;
@@ -65,7 +62,6 @@ contact_detect()
 	}
 
 	/* loop over all particles */
-
 	for (i = number_of_particles - 1; i >= 0; i--) {
 
 		if (i >= number_of_wall_particles || (particle_x[i] < max_x && particle_x[i] > min_x && particle_y[i] < max_y && particle_y[i] > min_y && particle_z[i] < max_z && particle_z[i] > min_z)) {
@@ -277,7 +273,6 @@ contact_detect()
 								 * ix-iy-iz
 								 * list
 								 */
-								 
 								l = xlist[0][0][ix].head;
 								while (l != -1) {
 									m = particle_nextx[l];
@@ -631,4 +626,3 @@ contact_detect()
 		}
 	}
 }
-

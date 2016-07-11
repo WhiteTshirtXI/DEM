@@ -44,6 +44,7 @@ main()
 	fp = fopen("position.in", "w");
 
 	if (ZPERIODIC != 1 ) {
+<<<<<<< HEAD
 		ZSTART=(wall_z(number_of_particles+back, 0.0, 0.0, 0.0)+1.0);
 		ZEND=(wall_z(number_of_particles+front, 0.0, 0.0, 0.0)-1.0);
 	}
@@ -59,6 +60,23 @@ main()
 	else {
 		YSTART=0.0;
 		YEND=Nz;
+=======
+		ZSTART=(wall_z(number_of_particles+back, 0.0, 0.0, 0.0)+1.0);  //1.5+1=2.5
+		ZEND=(wall_z(number_of_particles+front, 0.0, 0.0, 0.0)-1.0);  //Nz-1.5-1=3.0
+	}
+	else {
+		ZSTART=0.5;
+		ZEND=Nz-0.5;
+	}
+	
+	if (YPERIODIC != 1 ) {  //not periodic
+		YSTART=(wall_y(number_of_particles+bottom, 0.0, 0.0, 0.0)+1.0);  //1.5+1.0=2.5
+		YEND=(wall_y(number_of_particles+top, 0.0, 0.0, 0.0)-1.0);      //Ny-1.5-1.0=7.5
+	}
+	else {
+		YSTART=0.5;
+		YEND=Nz-0.5;
+>>>>>>> 9a075ada6f7ac996bc2a7e185bfa4bf733cb1e1d
 	}
 	
 	if (XPERIODIC != 1 ) {
@@ -66,12 +84,18 @@ main()
 		XEND=(wall_x(number_of_particles+right, 0.0, 0.0, 0.0)-1.0);
 	}
 	else {
+<<<<<<< HEAD
 		XSTART=XOFFSET_LEFT;
 		XEND=XOFFSET_RIGHT;
+=======
+		XSTART=0.5;
+		XEND=Nz-0.5;
+>>>>>>> 9a075ada6f7ac996bc2a7e185bfa4bf733cb1e1d
 	}
 	
 	printf("%e %e %e %e %e %e \n", XSTART, YSTART, ZSTART, XEND, YEND, ZEND);
 	
+<<<<<<< HEAD
 	num = 0;
 	xcounter = zcounter = 0.0;
 	Dz = 2.0 * PARTICLE_RADIUS;
@@ -143,6 +167,8 @@ main()
 		XEND=XOFFSET_RIGHT-1.0;
 	}
 		
+=======
+>>>>>>> 9a075ada6f7ac996bc2a7e185bfa4bf733cb1e1d
 	Dz = 2.0 * PARTICLE_RADIUS;
 	nz = (ZEND - ZSTART) / Dz;
 	NZ = (int)nz;
@@ -163,7 +189,13 @@ main()
 
 	Y = YSTART + PARTICLE_RADIUS;
 	xcounter = zcounter = 0.0;
+<<<<<<< HEAD
 			
+=======
+
+	num = 0;
+				
+>>>>>>> 9a075ada6f7ac996bc2a7e185bfa4bf733cb1e1d
 	for (l = 0; l < NY; l++) {
 		xcounter += 1.0;
 
@@ -182,6 +214,7 @@ main()
 
 			for (j = 0; j < NZ; j++) {
 				
+<<<<<<< HEAD
 				vy = 0.5 * (1.0 - 2.0*(double)arc4random_uniform(1000.0) / 1000.0);
 				vx = 0.5 * (1.0 - 2.0*(double)arc4random_uniform(1000.0) / 1000.0);
 				vz = 0.5 * (1.0 - 2.0*(double)arc4random_uniform(1000.0) / 1000.0);
@@ -194,6 +227,20 @@ main()
 				
 				if (((double)arc4random_uniform(1000.0) / 1000.0)>0.5) c = 2;
 				else c = 6;
+=======
+				dx = (Rx) * (1.0 - 2.0*(double)arc4random_uniform(1000.0) / 1000.0);
+				dy = (Ry) * (1.0 - 2.0*(double)arc4random_uniform(1000.0) / 1000.0);
+				vy = 0.01 * 0.5 * (1.0 - 2.0*(double)arc4random_uniform(1000.0) / 1000.0);
+				vx = 0.01 * 0.5 * (1.0 - 2.0*(double)arc4random_uniform(1000.0) / 1000.0);
+
+				x = X + dx;
+				y = Y + dy;
+
+				vz = 0.0;
+				z = Z;
+
+				r = PARTICLE_RADIUS - DISPERSION + DISPERSION * (1.0 - 2.0*(double)arc4random_uniform(1000.0) / 1000.0);
+>>>>>>> 9a075ada6f7ac996bc2a7e185bfa4bf733cb1e1d
 				
 				fprintf(fp, "%lf %lf %lf %lf %lf %lf 0.0 0.0 0.0 %lf 0.0 %d\n", x/size_of_cells, y/size_of_cells, z/size_of_cells, vx, vy, vz, r/size_of_cells, c);
 				num++;
@@ -214,4 +261,8 @@ main()
 	
 	printf("The number of total particles is %d\n", num);
 	
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9a075ada6f7ac996bc2a7e185bfa4bf733cb1e1d
 }

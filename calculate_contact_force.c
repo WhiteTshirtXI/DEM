@@ -3,7 +3,7 @@
 void
 calculate_contact_force(int i, int j)
 {
-	int 			q;
+	int 			q, touching=0;
 	double          fs_old_mag, fs_old_x, fs_old_y, fs_old_z;
 	double          disp_mag, ddisp_mag, disp_old_mag, disp_old_x, disp_old_y, disp_old_z;
 	double          norm_old_x, norm_old_y, norm_old_z;
@@ -19,6 +19,11 @@ calculate_contact_force(int i, int j)
 	double 			odisp_x, odisp_y, odisp_z, ofs_x, ofs_y, ofs_z;
 	double          contact_radius, dalpha, F_yield;
 	
+    // Rest is for wet particle define
+    double          wet_radii_sum, wet_radii_sum_sq, S;
+    double          fstn, fvn, fluid_fn, fluid_kt;
+    double          vdisp_x = 0.0, vdisp_y = 0.0, vdisp_z = 0.0;
+    
 	/* find the proper index for this potential pair of particles, note that the index i must be greater than j */
 	
 	q = pair(i, j);
@@ -126,7 +131,13 @@ calculate_contact_force(int i, int j)
 		/* we check if the current contact is a continuation (i.e., only 1 time step away from the pervious contact) */
 		/* otherwise, we erase all of the previous contact data */
 		
-		if ((number_of_time_steps-particle_number_of_time_steps[q])>1) erase_contact_data(q);
+        touching = 1;
+        
+		if ((number_of_time_steps-particle_number_of_time_steps[q])>1)
+        {
+          erase_contact_data(q);
+          particle_initial_time_step[q]=number_of_time_steps;
+        }
 	
 		/* recover the old contact data that is necessary to continue the contact */
 		
@@ -248,7 +259,6 @@ calculate_contact_force(int i, int j)
 		
 		if (fn < 0.0)
 			fn = 0.0;
-
 		/* start tangential force */
 
 		fn_test = friction_coefficient * fn;
@@ -455,6 +465,18 @@ calculate_contact_force(int i, int j)
 		else if (i == (number_of_particles+bottom)) bottom_wall_force+=fx;
 		
 		particle_number_of_time_steps[q] = number_of_time_steps;
+        
+        if (Gdirection==-1 && j < number_of_moving_wall_particles)
+        {
+            wall_force -= fy;
+            wall_force += fx;
+            // printf("fy %e, wall_force %e\n", fy,wall_force);
+        }
+        else if (Gdirection==1 && j < number_of_wall_particles && j >= number_of_moving_wall_particles)
+        {
+            wall_force -= fy;  //cheack this line later. Maybe mistake! No, looks right. Wall_force switchs signs
+            wall_force += fx;
+        }
 		
 	}
 	
@@ -462,5 +484,71 @@ calculate_contact_force(int i, int j)
 		//printf("Problem. The contact for %d and %d only took %lld time steps at time = %lld time steps! %e %e\n", i, j, (number_of_time_steps-particle_initial_time_step[q]), number_of_time_steps, radii_sum_sq, separation_sq);
 		particle_initial_time_step[q] = -200;
 	}
-	
+    //
+    //
+    //
+	/* wet part of the code   */
+    if (cohesive==1 && (number_of_time_steps-particle_number_of_time_steps[q])==1)
+    {
+        wet_radii_sum = radii_sum + S_crit;
+        wet_radii_sum_sq = wet_radii_sum * wet_radii_sum;
+        if (wet_radii_sum_sq > separation_sq)
+        {
+            separation = sqrt(separation_sq);
+            
+            S = separation - radii_sum;
+            if (S < ASP)
+                S = ASP;
+            
+            norm_x = xij / separation;
+            norm_y = yij / separation;
+            norm_z = zij / separation;
+            
+            vn = norm_x * vxij + norm_y * vyij + norm_z * vzij;
+            
+            fstn = -M_PI * R_eff * surface_tension * (exp(A * S + B) + C);
+            fvn = -6.0 * M_PI * R_eff * viscosity * vn * (R_eff / S);
+            fluid_fn = fstn + fvn;
+            
+            vdisp_x = (norm_z * vxij - norm_x * vzij) * norm_z - (norm_x * vyij - norm_y * vxij) * norm_y - rparti * (angvi_y * norm_z - angvi_z * norm_y) - rpartj * (angvj_y * norm_z - angvj_z * norm_y);
+            
+            vdisp_y = (norm_x * vyij - norm_y * vxij) * norm_x - (norm_y * vzij - norm_z * vyij) * norm_z - rparti * (angvi_z * norm_x - angvi_x * norm_z) - rpartj * (angvj_z * norm_x - angvj_x * norm_z);
+            
+            vdisp_z = (norm_y * vzij - norm_z * vyij) * norm_y - (norm_z * vxij - norm_x * vzij) * norm_x - rparti * (angvi_x * norm_y - angvi_y * norm_x) - rpartj * (angvj_x * norm_y - angvj_y * norm_x);
+            
+            fluid_kt = 6.0 * M_PI * R_eff * viscosity * (0.53333 * log(R_eff / S) + 0.9588);
+            
+            fs_x = -fluid_kt * vdisp_x;
+            fs_y = -fluid_kt * vdisp_y;
+            fs_z = -fluid_kt * vdisp_z;
+            
+            tx = (norm_y * fs_z - norm_z * fs_y);
+            ty = (norm_z * fs_x - norm_x * fs_z);
+            tz = (norm_x * fs_y - norm_y * fs_x);
+            
+            fx = norm_x * fluid_fn + fs_x;
+            fy = norm_y * fluid_fn + fs_y;
+            fz = norm_z * fluid_fn + fs_z;
+            // Check how is torque and force copied, seems nothing needs to be copied?
+            particle_torque_x[i] -= rparti * tx;
+            particle_torque_y[i] -= rparti * ty;
+            particle_torque_z[i] -= rparti * tz;
+            
+            particle_force_x[i] += fx;
+            particle_force_y[i] += fy;
+            particle_force_z[i] += fz;
+            
+            particle_torque_x[j] -= rpartj * tx;
+            particle_torque_y[j] -= rpartj * ty;
+            particle_torque_z[j] -= rpartj * tz;
+            
+            particle_force_x[j] -= fx;
+            particle_force_y[j] -= fy;
+            particle_force_z[j] -= fz;
+            
+            if (!touching) erase_contact_data(q);
+            particle_number_of_time_steps[q] = number_of_time_steps;
+            
+        }
+    }
 }

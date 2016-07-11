@@ -1,6 +1,6 @@
 PACKAGE = PD
 
-MEMBERS = main initialize calculate_contact_force contact_detect cross erase_contact_data move_particle update_velocity wall_position wall_velocity handle_walls
+MEMBERS = main initialize calculate_contact_force contact_detect cross erase_contact_data move_particle update_velocity wall_position wall_velocity handle_walls get_material_properties
 
 ifeq ($(DEBUG),yes)
 CFLAGS = -g -pg 
