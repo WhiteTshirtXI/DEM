@@ -168,7 +168,7 @@ main(int argc, char **argv)
 	fprintf(fpout_wall, "WALL_SPEED %e, WALL_MASS %e, L_density_value %lf,  H_density_value %lf\n", wall_speed, wall_mass, L_density, H_density);
     fprintf(fpout_wall, "       \n");
     fprintf(fpout_wall, "number_of_files        wall_force      wall_force_x\n");
-    printf("number_of_files        wall_force      wall_force_x\n");
+    printf("output include WALL_Parameters\n");
     
 	while (elapsed_time <= running_time * (1.0 / TIME)) {
 		min_x = (double) Nx;
@@ -216,6 +216,7 @@ main(int argc, char **argv)
             else if (particle_color[m]==3)
             {
                 particle_force_y[m] = particle_force_y_ng[m]*Gdirection;  //this is a new way to define gravity free condition. Not sure working yet
+                //printf("particle_force_y[m] %e \n", particle_force_y[m]);
             }
             
 			

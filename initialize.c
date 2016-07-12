@@ -65,6 +65,7 @@ initialize(char *infile)
 		particle_mass[m] = (4.0 / 3.0) * M_PI * pow(radius, 3.0) * density / MASS;
 		particle_moment[m]=(2.0/5.0)*particle_mass[m]*particle_radius[m]*particle_radius[m];
 		particle_force_x[m] = particle_force_y[m] = particle_force_z[m] = 0.0;
+        particle_force_y_ng[m]=(4.0 / 3.0) * M_PI * pow(radius, 3.0) * (H_density-L_density) / MASS;  //this line is for heavy only gravity
 		particle_torque_x[m] = particle_torque_y[m] = particle_torque_z[m] = 0.0;
 
 		
