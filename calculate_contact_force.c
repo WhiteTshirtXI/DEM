@@ -469,13 +469,13 @@ calculate_contact_force(int i, int j)
         if (Gdirection==-1 && j < number_of_moving_wall_particles)
         {
             wall_force -= fy;
-            wall_force += fx;
+            wall_force_x += fx;
             // printf("fy %e, wall_force %e\n", fy,wall_force);
         }
         else if (Gdirection==1 && j < number_of_wall_particles && j >= number_of_moving_wall_particles)
         {
             wall_force -= fy;  //cheack this line later. Maybe mistake! No, looks right. Wall_force switchs signs
-            wall_force += fx;
+            wall_force_x += fx;
         }
 		
 	}

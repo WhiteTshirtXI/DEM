@@ -169,7 +169,6 @@ main(int argc, char **argv)
     fprintf(fpout_wall, "       \n");
     fprintf(fpout_wall, "number_of_files        wall_force      wall_force_x\n");
     printf("output include WALL_Parameters\n");
-    
 	while (elapsed_time <= running_time * (1.0 / TIME)) {
 		min_x = (double) Nx;
 		max_x = 0.0;
@@ -268,6 +267,8 @@ main(int argc, char **argv)
 		/** move walls and calculate wall stresses/temps, if necesary **/
 		handle_moving_walls();
 		if (elapsed_time >= write_time) {
+            fprintf(fpout_wall, "%d %e %e\n", number_of_files, wall_force, wall_force_x);
+            fflush(fpout_wall);
 			sprintf(outfile, "file%04d", number_of_files);
 			if ((fpout = fopen(outfile, "w")) == NULL) {
 				printf("Cannot Open File\n");
@@ -280,9 +281,8 @@ main(int argc, char **argv)
 						
 			number_of_files++;
             printf("gdirection %f  stored_time(s) %f wall_force %f \n ", Gdirection,stored_time*TIME, wall_force);
-			write_time += (1.0 / 30.0) * (1.0 / TIME);
-            //write_time += dt;
-            fprintf(fpout_wall, "%d %e %e\n", number_of_files, wall_force, wall_force_x);
+			//write_time += (1.0 / 30.0) * (1.0 / TIME);
+            write_time += 10*dt;
 			
 		}
 			
